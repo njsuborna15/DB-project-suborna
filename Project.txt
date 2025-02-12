@@ -1,0 +1,66 @@
+CREATE TABLE Location (
+    Location_ID INT PRIMARY KEY AUTO_INCREMENT,
+    District VARCHAR(50) NOT NULL,
+    Latitude DECIMAL(9,6) NOT NULL,
+    Longitude DECIMAL(9,6) NOT NULL,
+    Elevation DECIMAL(6,2) NOT NULL,
+    Soil_Type VARCHAR(20) NOT NULL,
+    Last_Assessed DATE
+);
+
+CREATE TABLE Landslide_Event (
+    Event_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Location_ID INT,
+    Event_Date DATE NOT NULL,
+    Casualties INT,
+    Rainfall DECIMAL(6,2),
+    Description TEXT,
+    FOREIGN KEY (Location_ID) REFERENCES Location(Location_ID)
+);
+
+CREATE TABLE Risk_Assessment (
+    Assessment_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Location_ID INT,
+    Assessment_Date DATE NOT NULL,
+    Risk_Level ENUM('Low', 'Medium', 'High') NOT NULL,
+    Recommendations TEXT,
+    FOREIGN KEY (Location_ID) REFERENCES Location(Location_ID)
+);
+
+CREATE TABLE Mitigation_Measure (
+    Measure_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Location_ID INT,
+    Agency_ID INT,
+    Measure_Name VARCHAR(100) NOT NULL,
+    Description TEXT,
+    Implementation_Date DATE,
+    FOREIGN KEY (Location_ID) REFERENCES Location(Location_ID),
+    FOREIGN KEY (Agency_ID) REFERENCES Government_Agency(Agency_ID)
+);
+
+CREATE TABLE Government_Agency (
+    Agency_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Agency_Name VARCHAR(100) NOT NULL,
+    Contact_Person VARCHAR(100) NOT NULL,
+    Phone VARCHAR(20) NOT NULL,
+    Email VARCHAR(100) NOT NULL
+);
+
+
+INSERT INTO Location (District, Latitude, Longitude, Elevation, Soil_Type, Last_Assessed) VALUES
+('Chittagong', 22.366, 91.815, 200, 'Clay', '2024-01-10');
+
+INSERT INTO Landslide_Event (Location_ID, Event_Date, Casualties, Rainfall, Description) VALUES
+(1, '2024-06-15', 5, 150.5, 'Severe landslide due to heavy rainfall.');
+
+
+
+SELECT L.Event_Date, L.Casualties, L.Rainfall, LOC.District 
+FROM Landslide_Event L
+JOIN Location LOC ON L.Location_ID = LOC.Location_ID
+WHERE LOC.District = 'Chittagong';
+
+SELECT LOC.District, RA.Risk_Level, RA.Recommendations 
+FROM Risk_Assessment RA
+JOIN Location LOC ON RA.Location_ID = LOC.Location_ID
+WHERE RA.Risk_Level = 'High';
